@@ -1,0 +1,12 @@
+{
+  "mods": [
+    {
+      "name": "Mod bầu trời",
+      "url": "https://github.com/gta5s/Mods-On-GTA5S.NET/raw/refs/heads/main/GTA5VN_Graphic_FPS.rpf"
+    },
+    {
+      "name": "Mod tiếng súng",
+      "url": "https://github.com/gta5s/Mods-On-GTA5S.NET/raw/refs/heads/main/sound_gun.rpf"
+    }
+  ]
+}
