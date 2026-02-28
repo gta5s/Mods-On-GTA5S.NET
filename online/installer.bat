@@ -280,7 +280,9 @@ echo(
 
 "%PS%" -NoProfile -ExecutionPolicy Bypass -Command ^
   "$u='%MURL%'; $o='%DL_PATH%';" ^
-  "try{ [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls13; Invoke-WebRequest -Uri $u -OutFile $o -UseBasicParsing -ErrorAction Stop; exit 0 }catch{ exit 1 }" >nul 2>&1
+  "$sp=[Net.SecurityProtocolType]::Tls12; try{ $sp=$sp -bor [Net.SecurityProtocolType]::Tls13 }catch{};" ^
+  "[Net.ServicePointManager]::SecurityProtocol=$sp;" ^
+  "try{ $h=@{'User-Agent'='GTA5S-ModInstaller/1.0'}; Invoke-WebRequest -Uri $u -OutFile $o -Headers $h -UseBasicParsing -ErrorAction Stop; exit 0 }catch{ exit 1 }" >nul 2>&1
 
 if errorlevel 1 exit /b 1
 if not exist "!DL_PATH!" exit /b 1
