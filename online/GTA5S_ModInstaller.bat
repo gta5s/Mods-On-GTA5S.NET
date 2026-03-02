@@ -162,17 +162,10 @@ echo(
 
 set "HAS_ANY="
 for /L %%I in (1,1,99) do (
-  call set "U=%%MOD_URL_%%I%%"
+  set "U=!MOD_URL_%%I!"
   if defined U (
-    call set "N=%%MOD_NAME_%%I%%"
+    set "N=!MOD_NAME_%%I!"
     if not defined N set "N=Mod so %%I"
-
-    set "N=!N:^=^^!"
-    set "N=!N:&=^&!"
-    set "N=!N:|=^|!"
-    set "N=!N:<=^<!"
-    set "N=!N:>=^>!"
-
     echo %%I. !N!
     set "HAS_ANY=1"
   )
@@ -188,8 +181,6 @@ echo X. Thoát
 echo(
 set "CH="
 set /p "CH=Lựa chọn mod muốn cài đặt trên GTA5S (Nhập số tương ứng và bấm ENTER): "
-
-if not defined CH goto :MENU
 
 if /I "%CH%"=="X" exit /b 0
 
@@ -208,10 +199,8 @@ if "%CH%"=="0" (
   goto :AFTER_INSTALL
 )
 
-:: ==== VALIDATE CHỈ CHO PHÉP SỐ ====
-for /f "delims=0123456789" %%A in ("%CH%") do goto :MENU
-
-call set "SEL_URL=%%MOD_URL_%CH%%%"
+:: Validate số và mod tồn tại
+set "SEL_URL=!MOD_URL_%CH%!"
 if not defined SEL_URL (
   echo(
   echo Lựa chọn không hợp lệ hoặc mod không tồn tại. Thử lại...
@@ -288,7 +277,7 @@ echo(
 echo Đang cài đặt tất cả mods trên GTA5S ...
 
 for /L %%I in (1,1,99) do (
-  call set "U=%%MOD_URL_%%I%%"
+  set "U=!MOD_URL_%%I!"
   if defined U (
     call :INSTALL_MOD %%I
     if errorlevel 1 (set /a FAIL+=1) else (set /a OK+=1)
@@ -307,8 +296,8 @@ if !OK! gtr 0 (exit /b 0) else (exit /b 1)
 :: ===================== INSTALL MOD =====================
 :INSTALL_MOD
 set "IDX=%~1"
-call set "MNAME=%%MOD_NAME_%IDX%%% "
-call set "MURL=%%MOD_URL_%IDX%%% "
+set "MNAME=!MOD_NAME_%IDX%!"
+set "MURL=!MOD_URL_%IDX%!"
 
 if "!MURL!"=="" exit /b 1
 if "!MNAME!"=="" set "MNAME=Mod so %IDX%"
