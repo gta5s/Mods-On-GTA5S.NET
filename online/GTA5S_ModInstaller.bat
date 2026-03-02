@@ -45,7 +45,7 @@ set "MODS_INI_TMP=%TEMP%\GTA5S_mods.ini"
 del /f /q "%MODS_INI_TMP%" >nul 2>&1
 "%PS%" -NoProfile -ExecutionPolicy Bypass -Command ^
   "$u='%MODS_INI_URL%'; $o='%MODS_INI_TMP%';" ^
-  "try{ [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls13;" ^
+  "try{ [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; " ^
   "Invoke-WebRequest -Uri $u -OutFile $o -UseBasicParsing -EA Stop; exit 0 }catch{ exit 1 }" >nul 2>&1
 
 if exist "%MODS_INI_TMP%" (
@@ -162,11 +162,11 @@ echo(
 
 set "HAS_ANY="
 for /L %%I in (1,1,99) do (
-  set "U=!MOD_URL_%%I!"
+  call set "U=%%MOD_URL_%%I%%"
   if defined U (
-    set "N=!MOD_NAME_%%I!"
+    call set "N=%%MOD_NAME_%%I%%"
     if not defined N set "N=Mod so %%I"
-    echo %%I. !N!
+    call echo %%I. %%N%%
     set "HAS_ANY=1"
   )
 )
@@ -200,7 +200,9 @@ if "%CH%"=="0" (
 )
 
 :: Validate số và mod tồn tại
-set "SEL_URL=!MOD_URL_%CH%!"
+set "SEL_URL="
+call set "SEL_URL=%%MOD_URL_%CH%%%"
+
 if not defined SEL_URL (
   echo(
   echo Lựa chọn không hợp lệ hoặc mod không tồn tại. Thử lại...
@@ -211,7 +213,7 @@ if not defined SEL_URL (
 cls
 call :PRINT_HEADER
 echo(
-echo Bạn đã chọn: !MOD_NAME_%CH%!
+call echo Bạn đã chọn: %%MOD_NAME_%CH%%%
 call :INSTALL_MOD %CH%
 if errorlevel 1 (
   echo(
@@ -248,6 +250,7 @@ for /L %%I in (1,1,99) do (
   set "MOD_URL_%%I="
 )
 
+:: Safe set: call set "K=V" để tránh & ) ( ! phá cú pháp trong block
 for /f "usebackq delims=" %%L in ("%F%") do (
   set "LINE=%%L"
   if not "!LINE!"=="" (
@@ -256,11 +259,11 @@ for /f "usebackq delims=" %%L in ("%F%") do (
     ) else if "!LINE:~0,1!"=="#" (
       rem comment
     ) else (
-      for /f "tokens=1,* delims==" %%A in ("!LINE!") do (
+      for /f "tokens=1,* delims==" %%A in ("%%L") do (
         set "K=%%A"
         set "V=%%B"
         if defined K (
-          set "!K!=!V!"
+          call set "%%K%%=%%V%%"
         )
       )
     )
@@ -277,7 +280,7 @@ echo(
 echo Đang cài đặt tất cả mods trên GTA5S ...
 
 for /L %%I in (1,1,99) do (
-  set "U=!MOD_URL_%%I!"
+  call set "U=%%MOD_URL_%%I%%"
   if defined U (
     call :INSTALL_MOD %%I
     if errorlevel 1 (set /a FAIL+=1) else (set /a OK+=1)
@@ -296,8 +299,9 @@ if !OK! gtr 0 (exit /b 0) else (exit /b 1)
 :: ===================== INSTALL MOD =====================
 :INSTALL_MOD
 set "IDX=%~1"
-set "MNAME=!MOD_NAME_%IDX%!"
-set "MURL=!MOD_URL_%IDX%!"
+call set "MNAME=%%MOD_NAME_%IDX%%%"
+call set "MURL=%%MOD_URL_%IDX%%%"
+
 
 if "!MURL!"=="" exit /b 1
 if "!MNAME!"=="" set "MNAME=Mod so %IDX%"
@@ -318,7 +322,7 @@ echo(
 
 "%PS%" -NoProfile -ExecutionPolicy Bypass -Command ^
   "$u='%MURL%'; $o='%DL_PATH%';" ^
-  "try{ [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls13; Invoke-WebRequest -Uri $u -OutFile $o -UseBasicParsing -ErrorAction Stop; exit 0 }catch{ exit 1 }" >nul 2>&1
+  "try{ [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri $u -OutFile $o -UseBasicParsing -ErrorAction Stop; exit 0 }catch{ exit 1 }" >nul 2>&1
 
 if errorlevel 1 exit /b 1
 if not exist "!DL_PATH!" exit /b 1
