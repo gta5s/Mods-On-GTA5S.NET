@@ -110,7 +110,6 @@ if exist "%OUT%" (
   del /f /q "%OUT%" >nul 2>&1
 )
 
-:: ===== Fallback (chi khi that su KHONG tim thay) =====
 if not defined GAME_DIR (
   for /f "usebackq delims=" %%D in (`
     "%PS%" -STA -NoProfile -ExecutionPolicy Bypass -Command ^
@@ -136,7 +135,6 @@ if not exist "%GAME_DIR%\%APP_MANIFEST%" (
   pause & exit /b 1
 )
 
-:: ===================== MODS FOLDER =====================
 set "MODS_DIR=%GAME_DIR%\GTA5S.app\mods"
 if not exist "%MODS_DIR%" mkdir "%MODS_DIR%" >nul 2>&1
 
@@ -146,7 +144,6 @@ if not exist "%MODS_DIR%" (
   pause & exit /b 1
 )
 
-:: ===================== MENU =====================
 :MENU
 cls
 call :PRINT_HEADER
@@ -190,9 +187,8 @@ if "%CH%"=="0" (
   goto :AFTER_INSTALL
 )
 
-:: Validate số và mod tồn tại
 set "SEL_URL="
-call set "SEL_URL=%%MOD_URL_%CH%%%"
+call set "SEL_URL=%%MOD_URL_%CH%%"
 if not defined SEL_URL (
   echo(
   echo Lựa chọn không hợp lệ hoặc mod không tồn tại. Thử lại...
@@ -213,22 +209,18 @@ if errorlevel 1 (
 )
 goto :AFTER_INSTALL
 
-
-:: ===================== PRINT ONE MOD LINE (SAFE) =====================
 :PRINT_ONE
 setlocal DisableDelayedExpansion
 set "IDX=%~1"
-call set "U=%%MOD_URL_%IDX%%%"
+call set "U=%%MOD_URL_%IDX%%"
 if not defined U (endlocal & exit /b 0)
-call set "N=%%MOD_NAME_%IDX%%%"
+call set "N=%%MOD_NAME_%IDX%%"
 if not defined N set "N=Mod so %IDX%"
 echo %IDX%. %N%
 endlocal
 set "HAS_ANY=1"
 exit /b 0
 
-
-:: ===================== HEADER FOR INSTALL SCREEN =====================
 :PRINT_HEADER
 echo(
 echo "   ____ _____  _    ____ ____   _   _ _____ _____ "
@@ -239,8 +231,6 @@ echo "  \____| |_/_/   \_\____/____(_)_| \_|_____| |_| "
 echo(
 exit /b 0
 
-
-:: ===================== LOAD MODS.INI (SAFE) =====================
 :LOAD_MODS_INI
 set "F=%~1"
 if not exist "%F%" exit /b 0
@@ -270,8 +260,6 @@ for /f "usebackq delims=" %%L in ("%F%") do (
 )
 exit /b 0
 
-
-:: ===================== INSTALL ALL =====================
 :INSTALL_ALL
 set "OK=0"
 set "FAIL=0"
@@ -294,12 +282,10 @@ echo Thất bại : !FAIL!
 echo ==========================================
 if !OK! gtr 0 (exit /b 0) else (exit /b 1)
 
-
-:: ===================== INSTALL MOD =====================
 :INSTALL_MOD
 set "IDX=%~1"
-call set "MNAME=%%MOD_NAME_%IDX%%%"
-call set "MURL=%%MOD_URL_%IDX%%%"
+call set "MNAME=%%MOD_NAME_%IDX%%"
+call set "MURL=%%MOD_URL_%IDX%%"
 if "!MURL!"=="" exit /b 1
 if "!MNAME!"=="" set "MNAME=Mod so %IDX%"
 
@@ -330,8 +316,6 @@ if errorlevel 1 exit /b 1
 echo [OK] Đã cài đặt thành công: "!MNAME!" trên GTA5S
 exit /b 0
 
-
-:: ===================== AFTER INSTALL =====================
 :AFTER_INSTALL
 echo(
 choice /c YN /m "Bạn có muốn vào game GTA5S ngay không? (Bấm Y để vào game / Bấm N để quay lại MENU Mods tiếp)"
