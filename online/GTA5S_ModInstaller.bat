@@ -167,15 +167,13 @@ for /L %%I in (1,1,99) do (
     set "N=!MOD_NAME_%%I!"
     if not defined N set "N=Mod so %%I"
 
-    rem ==== escape ky tu dac biet de khong vo block ====
-    set "N=!N:^=^^!"
-    set "N=!N:&=^&!"
-    set "N=!N:|=^|!"
-    set "N=!N:<=^<!"
-    set "N=!N:>=^>!"
-    set "N=!N:(=^(!"
-    set "N=!N:)=^)!"
-    rem ================================================
+    rem ==== escape safe (KHONG DUNG NGOAC) ====
+set "N=!N:^=^^!"
+set "N=!N:&=^&!"
+set "N=!N:|=^|!"
+set "N=!N:<=^<!"
+set "N=!N:>=^>!"
+rem ========================================
 
     echo %%I. !N!
     set "HAS_ANY=1"
