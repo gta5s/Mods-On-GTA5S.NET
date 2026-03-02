@@ -3,9 +3,9 @@ setlocal EnableExtensions EnableDelayedExpansion
 chcp 65001 >nul
 
 :: =========================================================
-:: CORE.BAT (ONLINE) - cháº¡y bá»Ÿi Launcher.exe Ä‘Ã£ build 1 láº§n
-:: - Mods list Ä‘Æ°á»£c load tá»« mods.ini (update online)
-:: - Logic autodetect + download + copy mods giá»¯ nguyÃªn
+:: CORE.BAT (ONLINE) - chạy bởi Launcher.exe đã build 1 lần
+:: - Mods list được load từ mods.ini (update online)
+:: - Logic autodetect + download + copy mods giữ nguyên
 :: =========================================================
 
 :: ===================== CONFIG (GIU LOGIC CU) =====================
@@ -14,10 +14,10 @@ set "APP_EXE=GTA5S.exe"
 set "APP_MANIFEST=GTA5S.VisualElementsManifest.xml"
 :: =================================================================
 
-title %APP_NAME% CÃ i Ä‘áº·t Mod nhanh trÃªn GTA5S - Install Mods on GTA5S (Coded by KayC)
+title %APP_NAME% Cài đặt Mod nhanh trên GTA5S - Install Mods on GTA5S (Coded by KayC)
 color A
 
-:: ===== Nháº­n Ä‘Æ°á»ng dáº«n mods.ini tá»« Launcher =====
+:: ===== Nhận đường dẫn mods.ini từ Launcher =====
 set "MODS_INI=%~1"
 if not defined MODS_INI set "MODS_INI=%~dp0mods.ini"
 
@@ -28,7 +28,7 @@ set "PS=%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe"
 call :LOAD_MODS "%MODS_INI%"
 if errorlevel 1 (
   echo(
-  echo [ERR] KhÃ´ng load Ä‘Æ°á»£c danh sÃ¡ch mods tá»«:
+  echo [ERR] Không load được danh sách mods từ:
   echo "%MODS_INI%"
   echo(
   pause
@@ -37,7 +37,7 @@ if errorlevel 1 (
 
 :: ===================== BANNER (GIU NGUYEN) =====================
 echo(
-echo %APP_NAME% CÃ i Ä‘áº·t Mod trÃªn GTA5S - Install Mods on GTA5S (Coded by KayC)
+echo %APP_NAME% Cài đặt Mod trên GTA5S - Install Mods on GTA5S (Coded by KayC)
 echo(
 echo "   ____ _____  _    ____ ____   _   _ _____ _____ "
 echo "  / ___|_   _|/ \  | ___/ ___| | \ | | ____|_   _| "
@@ -144,14 +144,14 @@ cls
 call :PRINT_HEADER
 
 echo(
-echo 0. CÃ i Ä‘áº·t táº¥t cáº£ mods bÃªn dÆ°á»›i trÃªn GTA5S â­
+echo 0. Cài đặt tất cả mods bên dưới trên GTA5S ⭐
 echo(
 call :PRINT_MOD_LIST
 echo(
-echo X. ThoÃ¡t
+echo X. Thoát
 echo(
 set "CH="
-set /p "CH=Lá»±a chá»n mod muá»‘n cÃ i Ä‘áº·t trÃªn GTA5S (Nháº­p sá»‘ tÆ°Æ¡ng á»©ng vÃ  báº¥m ENTER): "
+set /p "CH=Lựa chọn mod muốn cài đặt trên GTA5S (Nhập số tương ứng và bấm ENTER): "
 
 if /I "%CH%"=="X" exit /b 0
 
@@ -159,28 +159,28 @@ if "%CH%"=="0" (
   cls
   call :PRINT_HEADER
   echo(
-  echo Báº¡n Ä‘Ã£ chá»n: CÃ€I Táº¤T Cáº¢ MODS
+  echo Bạn đã chọn: CÀI TẤT CẢ MODS
   call :INSTALL_ALL
   if errorlevel 1 (
     echo(
-    echo [!] CÃ³ lá»—i khi cÃ i má»™t sá»‘ mod. Báº¥m phÃ­m báº¥t ká»³ Ä‘á»ƒ quay láº¡i menu...
+    echo [!] Có lỗi khi cài một số mod. Bấm phím bất kỳ để quay lại menu...
     pause >nul
     goto :MENU
   )
   goto :AFTER_INSTALL
 )
 
-:: chá»n mod theo sá»‘ (giá»¯ Ä‘Ãºng logic, chá»‰ tá»•ng quÃ¡t hÃ³a)
+:: chọn mod theo số (giữ đúng logic, chỉ tổng quát hóa)
 set "U=!MOD_URL_%CH%!"
 if defined U (
   cls
   call :PRINT_HEADER
   echo(
-  echo Báº¡n Ä‘Ã£ chá»n: !MOD_NAME_%CH%!
+  echo Bạn đã chọn: !MOD_NAME_%CH%!
   call :INSTALL_MOD %CH%
   if errorlevel 1 (
     echo(
-    echo [!] CÃ i mod tháº¥t báº¡i. Báº¥m phÃ­m báº¥t ká»³ Ä‘á»ƒ quay láº¡i menu...
+    echo [!] Cài mod thất bại. Bấm phím bất kỳ để quay lại menu...
     pause >nul
     goto :MENU
   )
@@ -188,7 +188,7 @@ if defined U (
 )
 
 echo(
-echo Lá»±a chá»n khÃ´ng há»£p lá»‡. Thá»­ láº¡i...
+echo Lựa chọn không hợp lệ. Thử lại...
 timeout /t 2 >nul
 goto :MENU
 
@@ -226,7 +226,7 @@ exit /b 0
 set "OK=0"
 set "FAIL=0"
 echo(
-echo Äang cÃ i Ä‘áº·t táº¥t cáº£ mods trÃªn GTA5S ...
+echo Đang cài đặt tất cả mods trên GTA5S ...
 
 for /L %%I in (1,1,99) do (
   set "U="
@@ -239,9 +239,9 @@ for /L %%I in (1,1,99) do (
 
 echo(
 echo ==========================================
-echo HoÃ n táº¥t cÃ i Ä‘áº·t táº¥t cáº£ mods:
-echo ThÃ nh cÃ´ng: !OK!
-echo Tháº¥t báº¡i : !FAIL!
+echo Hoàn tất cài đặt tất cả mods:
+echo Thành công: !OK!
+echo Thất bại : !FAIL!
 echo ==========================================
 if !OK! gtr 0 (exit /b 0) else (exit /b 1)
 
@@ -266,7 +266,7 @@ set "DL_PATH=!DL_DIR!\!MFILE!"
 del /f /q "!DL_PATH!" >nul 2>&1
 
 echo(
-echo Äang táº£i vÃ  cÃ i Ä‘áº·t: !MNAME!
+echo Đang tải và cài đặt: !MNAME!
 echo(
 
 "%PS%" -NoProfile -ExecutionPolicy Bypass -Command ^
@@ -280,19 +280,19 @@ if not exist "!DL_PATH!" exit /b 1
 copy /y "!DL_PATH!" "%MODS_DIR%\" >nul
 if errorlevel 1 exit /b 1
 
-echo [OK] ÄÃ£ cÃ i Ä‘áº·t thÃ nh cÃ´ng: "!MNAME!" trÃªn GTA5S
+echo [OK] Đã cài đặt thành công: "!MNAME!" trên GTA5S
 exit /b 0
 
 
 :: ===================== AFTER INSTALL =====================
 :AFTER_INSTALL
 echo(
-choice /c YN /m "Báº¡n cÃ³ muá»‘n vÃ o game GTA5S ngay khÃ´ng? (Báº¥m Y Ä‘á»ƒ vÃ o game / Báº¥m N Ä‘á»ƒ quay láº¡i MENU Mods tiáº¿p)"
+choice /c YN /m "Bạn có muốn vào game GTA5S ngay không? (Bấm Y để vào game / Bấm N để quay lại MENU Mods tiếp)"
 if errorlevel 2 goto :MENU
 
 start "" "%GAME_DIR%\%APP_EXE%"
 echo(
-echo Äang má»Ÿ %APP_NAME%. Tá»± Ä‘á»™ng Ä‘Ã³ng sau 5 giÃ¢y ...
+echo Đang mở %APP_NAME%. Tự động đóng sau 5 giây ...
 timeout /t 5 >nul
 exit /b 0
 
@@ -330,7 +330,7 @@ for /f "usebackq delims=" %%L in ("%INI%") do (
       set "K=%%A"
       set "V=%%B"
       if defined K (
-        :: key dáº¡ng: 1.name / 1.url
+        :: key dạng: 1.name / 1.url
         for /f "tokens=1,2 delims=." %%I in ("!K!") do (
           set "IDX=%%I"
           set "FIELD=%%J"
@@ -344,7 +344,7 @@ for /f "usebackq delims=" %%L in ("%INI%") do (
   :CONT
 )
 
-:: Ã­t nháº¥t pháº£i cÃ³ 1 url
+:: ít nhất phải có 1 url
 set "HAS=0"
 for /L %%I in (1,1,99) do (
   if defined MOD_URL_%%I set "HAS=1"
