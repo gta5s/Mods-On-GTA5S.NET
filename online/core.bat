@@ -3,39 +3,37 @@ setlocal EnableExtensions EnableDelayedExpansion
 chcp 65001 >nul
 
 :: =========================================================
-:: CORE.BAT (ONLINE) - chạy bởi Launcher.exe đã build 1 lần
-:: - Mods list được load từ mods.ini (update online)
-:: - Logic autodetect + download + copy mods giữ nguyên
+:: CORE.BAT (ONLINE)
+:: - Nhận đường dẫn mods.ini từ Launcher.exe/launcher.bat
+:: - Load mods list từ mods.ini (update online)
+:: - Giữ nguyên logic autodetect + download + copy mods
 :: =========================================================
-
-:: ===================== CONFIG (GIU LOGIC CU) =====================
-set "APP_NAME=GTA5S"
-set "APP_EXE=GTA5S.exe"
-set "APP_MANIFEST=GTA5S.VisualElementsManifest.xml"
-:: =================================================================
-
-title %APP_NAME% Cài đặt Mod nhanh trên GTA5S - Install Mods on GTA5S (Coded by KayC)
-color A
 
 :: ===== Nhận đường dẫn mods.ini từ Launcher =====
 set "MODS_INI=%~1"
 if not defined MODS_INI set "MODS_INI=%~dp0mods.ini"
 
-:: ===== PowerShell path =====
-set "PS=%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe"
+:: ===================== DEFAULT CONFIG (fallback) =====================
+set "APP_NAME=GTA5S"
+set "APP_EXE=GTA5S.exe"
+set "APP_MANIFEST=GTA5S.VisualElementsManifest.xml"
+:: ====================================================================
 
-:: ===================== LOAD MODS FROM INI =====================
-call :LOAD_MODS "%MODS_INI%"
-if errorlevel 1 (
-  echo(
-  echo [ERR] Không load được danh sách mods từ:
+:: ===================== LOAD CONFIG FROM mods.ini =====================
+if exist "%MODS_INI%" (
+  call :LOAD_INI_APP "%MODS_INI%"
+  call :LOAD_INI_MODS "%MODS_INI%"
+) else (
+  echo [ERR] Khong tim thay mods.ini:
   echo "%MODS_INI%"
-  echo(
   pause
   exit /b 1
 )
 
-:: ===================== BANNER (GIU NGUYEN) =====================
+title %APP_NAME% Cài đặt Mod nhanh trên GTA5S - Install Mods on GTA5S (Coded by KayC)
+color A
+
+:: Banner
 echo(
 echo %APP_NAME% Cài đặt Mod trên GTA5S - Install Mods on GTA5S (Coded by KayC)
 echo(
@@ -46,10 +44,9 @@ echo " | |_| | | |/ ___ \ ___) |__) || |\  | |___  | | "
 echo "  \____| |_/_/   \_\____/____(_)_| \_|_____| |_| "
 echo(
 
-:: ============================================================
-:: ============ AUTO-DETECT GAME FOLDER (FAST, no UI) ==========
-:: ============================================================
+:: ===================== AUTO-DETECT GAME FOLDER (FAST, no UI) =====================
 set "GAME_DIR="
+set "PS=%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe"
 set "OUT=%TEMP%\game_dir.txt"
 del /f /q "%OUT%" >nul 2>&1
 
@@ -138,20 +135,22 @@ if not exist "%MODS_DIR%" (
   pause & exit /b 1
 )
 
-:: ===================== MENU =====================
+:: ===================== MENU LOOP =====================
 :MENU
 cls
 call :PRINT_HEADER
 
 echo(
-echo 0. Cài đặt tất cả mods bên dưới trên GTA5S ⭐
+echo 0. Cai dat tat ca mods ben duoi tren GTA5S ⭐
 echo(
-call :PRINT_MOD_LIST
+
+call :PRINT_MODS_MENU
+
 echo(
-echo X. Thoát
+echo X. Thoat
 echo(
 set "CH="
-set /p "CH=Lựa chọn mod muốn cài đặt trên GTA5S (Nhập số tương ứng và bấm ENTER): "
+set /p "CH=Lua chon mod muon cai dat tren GTA5S (Nhap so tuong ung va bam ENTER): "
 
 if /I "%CH%"=="X" exit /b 0
 
@@ -159,38 +158,38 @@ if "%CH%"=="0" (
   cls
   call :PRINT_HEADER
   echo(
-  echo Bạn đã chọn: CÀI TẤT CẢ MODS
+  echo Ban da chon: CAI TAT CA MODS
   call :INSTALL_ALL
   if errorlevel 1 (
     echo(
-    echo [!] Có lỗi khi cài một số mod. Bấm phím bất kỳ để quay lại menu...
+    echo [!] Co loi khi cai mot so mod. Bam phim bat ky de quay lai menu...
     pause >nul
     goto :MENU
   )
   goto :AFTER_INSTALL
 )
 
-:: chọn mod theo số (giữ đúng logic, chỉ tổng quát hóa)
+:: Nếu user nhập số: kiểm tra có url không rồi cài
 set "U=!MOD_URL_%CH%!"
-if defined U (
-  cls
-  call :PRINT_HEADER
+if not defined U (
   echo(
-  echo Bạn đã chọn: !MOD_NAME_%CH%!
-  call :INSTALL_MOD %CH%
-  if errorlevel 1 (
-    echo(
-    echo [!] Cài mod thất bại. Bấm phím bất kỳ để quay lại menu...
-    pause >nul
-    goto :MENU
-  )
-  goto :AFTER_INSTALL
+  echo Lua chon khong hop le. Thu lai...
+  timeout /t 2 >nul
+  goto :MENU
 )
 
+cls
+call :PRINT_HEADER
 echo(
-echo Lựa chọn không hợp lệ. Thử lại...
-timeout /t 2 >nul
-goto :MENU
+echo Ban da chon: !MOD_NAME_%CH%!
+call :INSTALL_MOD %CH%
+if errorlevel 1 (
+  echo(
+  echo [!] Cai mod that bai. Bam phim bat ky de quay lai menu...
+  pause >nul
+  goto :MENU
+)
+goto :AFTER_INSTALL
 
 
 :: ===================== HEADER FOR INSTALL SCREEN =====================
@@ -208,13 +207,12 @@ echo ==========================================
 exit /b 0
 
 
-:: ===================== PRINT MOD LIST =====================
-:PRINT_MOD_LIST
+:: ===================== PRINT MODS MENU =====================
+:PRINT_MODS_MENU
 for /L %%I in (1,1,99) do (
   set "N=!MOD_NAME_%%I!"
   set "U=!MOD_URL_%%I!"
-  if defined U (
-    if not defined N set "N=Mod so %%I"
+  if defined N if defined U (
     echo %%I. !N!
   )
 )
@@ -226,10 +224,9 @@ exit /b 0
 set "OK=0"
 set "FAIL=0"
 echo(
-echo Đang cài đặt tất cả mods trên GTA5S ...
+echo Dang cai dat tat ca mods tren GTA5S ...
 
 for /L %%I in (1,1,99) do (
-  set "U="
   set "U=!MOD_URL_%%I!"
   if defined U (
     call :INSTALL_MOD %%I
@@ -239,9 +236,9 @@ for /L %%I in (1,1,99) do (
 
 echo(
 echo ==========================================
-echo Hoàn tất cài đặt tất cả mods:
-echo Thành công: !OK!
-echo Thất bại : !FAIL!
+echo Hoan tat cai dat tat ca mods:
+echo Thanh cong: !OK!
+echo That bai : !FAIL!
 echo ==========================================
 if !OK! gtr 0 (exit /b 0) else (exit /b 1)
 
@@ -266,13 +263,12 @@ set "DL_PATH=!DL_DIR!\!MFILE!"
 del /f /q "!DL_PATH!" >nul 2>&1
 
 echo(
-echo Đang tải và cài đặt: !MNAME!
+echo Dang tai va cai dat: !MNAME!
 echo(
 
 "%PS%" -NoProfile -ExecutionPolicy Bypass -Command ^
   "$u='%MURL%'; $o='%DL_PATH%';" ^
-  "try{ [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls13;" ^
-  "Invoke-WebRequest -Uri $u -OutFile $o -UseBasicParsing -ErrorAction Stop; exit 0 }catch{ exit 1 }" >nul 2>&1
+  "try{ [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls13; Invoke-WebRequest -Uri $u -OutFile $o -UseBasicParsing -ErrorAction Stop; exit 0 }catch{ exit 1 }" >nul 2>&1
 
 if errorlevel 1 exit /b 1
 if not exist "!DL_PATH!" exit /b 1
@@ -280,74 +276,121 @@ if not exist "!DL_PATH!" exit /b 1
 copy /y "!DL_PATH!" "%MODS_DIR%\" >nul
 if errorlevel 1 exit /b 1
 
-echo [OK] Đã cài đặt thành công: "!MNAME!" trên GTA5S
+echo [OK] Da cai dat thanh cong: "!MNAME!" tren GTA5S
 exit /b 0
 
 
 :: ===================== AFTER INSTALL =====================
 :AFTER_INSTALL
 echo(
-choice /c YN /m "Bạn có muốn vào game GTA5S ngay không? (Bấm Y để vào game / Bấm N để quay lại MENU Mods tiếp)"
+choice /c YN /m "Ban co muon vao game GTA5S ngay khong? (Bam Y de vao game / Bam N de quay lai MENU Mods tiep)"
 if errorlevel 2 goto :MENU
 
 start "" "%GAME_DIR%\%APP_EXE%"
 echo(
-echo Đang mở %APP_NAME%. Tự động đóng sau 5 giây ...
+echo Dang mo %APP_NAME%. Tu dong dong sau 5 giay ...
 timeout /t 5 >nul
 exit /b 0
 
 
-:: ===================== LOAD MODS INI =====================
-:LOAD_MODS
+:: ===================== INI PARSERS =====================
+:LOAD_INI_APP
 set "INI=%~1"
-if not exist "%INI%" exit /b 1
+for /f "usebackq tokens=1,* delims==" %%A in (`findstr /R /C:"^[ ]*[a-zA-Z0-9_.-][a-zA-Z0-9_.-]*=" "%INI%"`) do (
+  set "K=%%A"
+  set "V=%%B"
+  call :TRIM K
+  call :TRIM V
 
-:: clear old vars
+  :: chỉ nhận trong [app] bằng cách check biến SECTION hiện tại
+)
+:: parser dưới đây làm theo dòng để biết section
+set "SECTION="
+for /f "usebackq delims=" %%L in ("%INI%") do (
+  set "LINE=%%L"
+  call :PARSE_LINE_APP
+)
+exit /b 0
+
+:PARSE_LINE_APP
+set "L=!LINE!"
+for /f "tokens=* delims= " %%Z in ("!L!") do set "L=%%Z"
+if "!L!"=="" exit /b 0
+if "!L:~0,1!"==";" exit /b 0
+if "!L:~0,1!"=="#" exit /b 0
+
+if "!L:~0,1!"=="[" (
+  set "SECTION=!L!"
+  exit /b 0
+)
+
+if /I "!SECTION!" NEQ "[app]" exit /b 0
+
+for /f "tokens=1,* delims==" %%A in ("!L!") do (
+  set "K=%%A"
+  set "V=%%B"
+  call :TRIM K
+  call :TRIM V
+
+  if /I "!K!"=="name" set "APP_NAME=!V!"
+  if /I "!K!"=="exe" set "APP_EXE=!V!"
+  if /I "!K!"=="manifest" set "APP_MANIFEST=!V!"
+)
+exit /b 0
+
+:LOAD_INI_MODS
+set "INI=%~1"
 for /L %%I in (1,1,99) do (
   set "MOD_NAME_%%I="
   set "MOD_URL_%%I="
 )
 
-set "INMODS=0"
+set "SECTION="
 for /f "usebackq delims=" %%L in ("%INI%") do (
   set "LINE=%%L"
-  if "!LINE!"=="" goto :CONT
-  if "!LINE:~0,1!"==";" goto :CONT
-  if "!LINE:~0,1!"=="#" goto :CONT
+  call :PARSE_LINE_MODS
+)
+exit /b 0
 
-  if /i "!LINE!"=="[mods]" (
-    set "INMODS=1"
-    goto :CONT
-  )
+:PARSE_LINE_MODS
+set "L=!LINE!"
+for /f "tokens=* delims= " %%Z in ("!L!") do set "L=%%Z"
+if "!L!"=="" exit /b 0
+if "!L:~0,1!"==";" exit /b 0
+if "!L:~0,1!"=="#" exit /b 0
 
-  if "!LINE:~0,1!"=="[" (
-    set "INMODS=0"
-    goto :CONT
-  )
-
-  if "!INMODS!"=="1" (
-    for /f "tokens=1,* delims==" %%A in ("!LINE!") do (
-      set "K=%%A"
-      set "V=%%B"
-      if defined K (
-        :: key dạng: 1.name / 1.url
-        for /f "tokens=1,2 delims=." %%I in ("!K!") do (
-          set "IDX=%%I"
-          set "FIELD=%%J"
-          if /i "!FIELD!"=="name" set "MOD_NAME_!IDX!=!V!"
-          if /i "!FIELD!"=="url"  set "MOD_URL_!IDX!=!V!"
-        )
-      )
-    )
-  )
-
-  :CONT
+if "!L:~0,1!"=="[" (
+  set "SECTION=!L!"
+  exit /b 0
 )
 
-:: ít nhất phải có 1 url
-set "HAS=0"
-for /L %%I in (1,1,99) do (
-  if defined MOD_URL_%%I set "HAS=1"
+if /I "!SECTION!" NEQ "[mods]" exit /b 0
+
+for /f "tokens=1,* delims==" %%A in ("!L!") do (
+  set "K=%%A"
+  set "V=%%B"
+  call :TRIM K
+  call :TRIM V
+
+  :: K dạng: 1.name / 1.url
+  for /f "tokens=1,2 delims=." %%i in ("!K!") do (
+    set "IDX=%%i"
+    set "KEY=%%j"
+  )
+
+  if not defined IDX exit /b 0
+  if not defined KEY exit /b 0
+
+  for /f "delims=0123456789" %%X in ("!IDX!") do (
+    rem nếu IDX có ký tự không phải số -> bỏ
+    exit /b 0
+  )
+
+  if /I "!KEY!"=="name" set "MOD_NAME_!IDX!=!V!"
+  if /I "!KEY!"=="url"  set "MOD_URL_!IDX!=!V!"
 )
-if "!HAS!"=="1" exit /b 0
-exit /b 1
+exit /b 0
+
+:TRIM
+set "%~1=!%~1: =!"
+exit /b 0
