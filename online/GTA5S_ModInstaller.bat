@@ -193,6 +193,8 @@ echo(
 set "CH="
 set /p "CH=Lựa chọn mod muốn cài đặt trên GTA5S (Nhập số tương ứng và bấm ENTER): "
 
+if not defined CH goto :MENU
+
 if /I "%CH%"=="X" exit /b 0
 
 if "%CH%"=="0" (
@@ -210,8 +212,10 @@ if "%CH%"=="0" (
   goto :AFTER_INSTALL
 )
 
-:: Validate số và mod tồn tại
-set "SEL_URL=!MOD_URL_%CH%!"
+:: ==== VALIDATE CHỈ CHO PHÉP SỐ ====
+for /f "delims=0123456789" %%A in ("%CH%") do goto :MENU
+
+call set "SEL_URL=%%MOD_URL_%CH%%%"
 if not defined SEL_URL (
   echo(
   echo Lựa chọn không hợp lệ hoặc mod không tồn tại. Thử lại...
