@@ -38,7 +38,6 @@ set "MOD_URL_3=https://example.com/mods/other.rpf"
 
 :: ============================================================
 :: =============== LOAD MODS ONLINE (mods.ini) =================
-:: Bạn đổi URL này đúng repo của bạn
 set "MODS_INI_URL=https://raw.githubusercontent.com/gta5s/Mods-On-GTA5S.NET/main/online/mods.ini"
 set "MODS_INI_TMP=%TEMP%\GTA5S_mods.ini"
 
@@ -161,15 +160,7 @@ echo 0. Cài đặt tất cả mods bên dưới trên GTA5S ⭐
 echo(
 
 set "HAS_ANY="
-for /L %%I in (1,1,99) do (
-  call set "U=%%MOD_URL_%%I%%"
-  if defined U (
-    call set "N=%%MOD_NAME_%%I%%"
-    if not defined N set "N=Mod so %%I"
-    call echo %%I. %%N%%
-    set "HAS_ANY=1"
-  )
-)
+for /L %%I in (1,1,99) do call :PRINT_ONE %%I
 
 if not defined HAS_ANY (
   echo [!] Chua co mod nao (MOD_URL_x trống). Kiem tra mods.ini / MOD LIST.
@@ -202,7 +193,6 @@ if "%CH%"=="0" (
 :: Validate số và mod tồn tại
 set "SEL_URL="
 call set "SEL_URL=%%MOD_URL_%CH%%%"
-
 if not defined SEL_URL (
   echo(
   echo Lựa chọn không hợp lệ hoặc mod không tồn tại. Thử lại...
@@ -224,6 +214,20 @@ if errorlevel 1 (
 goto :AFTER_INSTALL
 
 
+:: ===================== PRINT ONE MOD LINE (SAFE) =====================
+:PRINT_ONE
+setlocal DisableDelayedExpansion
+set "IDX=%~1"
+call set "U=%%MOD_URL_%IDX%%%"
+if not defined U (endlocal & exit /b 0)
+call set "N=%%MOD_NAME_%IDX%%%"
+if not defined N set "N=Mod so %IDX%"
+echo %IDX%. %N%
+endlocal
+set "HAS_ANY=1"
+exit /b 0
+
+
 :: ===================== HEADER FOR INSTALL SCREEN =====================
 :PRINT_HEADER
 echo(
@@ -236,21 +240,16 @@ echo(
 exit /b 0
 
 
-:: ===================== LOAD MODS.INI =====================
-:: format:
-:: MOD_NAME_1=abc
-:: MOD_URL_1=https://...
+:: ===================== LOAD MODS.INI (SAFE) =====================
 :LOAD_MODS_INI
 set "F=%~1"
 if not exist "%F%" exit /b 0
 
-:: Clear old mods (1..99) trước khi load để hỗ trợ xoá mod online
 for /L %%I in (1,1,99) do (
   set "MOD_NAME_%%I="
   set "MOD_URL_%%I="
 )
 
-:: Safe set: call set "K=V" để tránh & ) ( ! phá cú pháp trong block
 for /f "usebackq delims=" %%L in ("%F%") do (
   set "LINE=%%L"
   if not "!LINE!"=="" (
@@ -301,8 +300,6 @@ if !OK! gtr 0 (exit /b 0) else (exit /b 1)
 set "IDX=%~1"
 call set "MNAME=%%MOD_NAME_%IDX%%%"
 call set "MURL=%%MOD_URL_%IDX%%%"
-
-
 if "!MURL!"=="" exit /b 1
 if "!MNAME!"=="" set "MNAME=Mod so %IDX%"
 
