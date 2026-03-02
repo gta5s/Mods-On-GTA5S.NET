@@ -162,18 +162,16 @@ echo(
 
 set "HAS_ANY="
 for /L %%I in (1,1,99) do (
-  set "U=!MOD_URL_%%I!"
+  call set "U=%%MOD_URL_%%I%%"
   if defined U (
-    set "N=!MOD_NAME_%%I!"
+    call set "N=%%MOD_NAME_%%I%%"
     if not defined N set "N=Mod so %%I"
 
-    rem ==== escape safe (KHONG DUNG NGOAC) ====
-set "N=!N:^=^^!"
-set "N=!N:&=^&!"
-set "N=!N:|=^|!"
-set "N=!N:<=^<!"
-set "N=!N:>=^>!"
-rem ========================================
+    set "N=!N:^=^^!"
+    set "N=!N:&=^&!"
+    set "N=!N:|=^|!"
+    set "N=!N:<=^<!"
+    set "N=!N:>=^>!"
 
     echo %%I. !N!
     set "HAS_ANY=1"
@@ -290,7 +288,7 @@ echo(
 echo Đang cài đặt tất cả mods trên GTA5S ...
 
 for /L %%I in (1,1,99) do (
-  set "U=!MOD_URL_%%I!"
+  call set "U=%%MOD_URL_%%I%%"
   if defined U (
     call :INSTALL_MOD %%I
     if errorlevel 1 (set /a FAIL+=1) else (set /a OK+=1)
@@ -309,8 +307,8 @@ if !OK! gtr 0 (exit /b 0) else (exit /b 1)
 :: ===================== INSTALL MOD =====================
 :INSTALL_MOD
 set "IDX=%~1"
-set "MNAME=!MOD_NAME_%IDX%!"
-set "MURL=!MOD_URL_%IDX%!"
+call set "MNAME=%%MOD_NAME_%IDX%%% "
+call set "MURL=%%MOD_URL_%IDX%%% "
 
 if "!MURL!"=="" exit /b 1
 if "!MNAME!"=="" set "MNAME=Mod so %IDX%"
